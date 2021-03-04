@@ -1,3 +1,7 @@
+Interface VS Types:
+https://github.com/microsoft/TypeScript/issues/33099
+This is working as intended. Object literal types have implicit index signatures---interfaces do not.
+
 # typescript
 
 ```js
