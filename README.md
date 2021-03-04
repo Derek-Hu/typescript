@@ -1,6 +1,43 @@
 # typescript
 
 ```js
+type UnionType = {
+    field: "one",
+    value: "two"
+  } | {
+    field: "a" | "b",
+    value: "a1" | "b1" | "c1"
+  }
+  
+type InferValue<T extends UnionType, K extends UnionType["field"]> = 
+// Use `extends` keyword to limit, refer to TypeScript `Exclude` implementation
+T extends (
+  // get the matching struct, but it cannot be used directly
+  {
+    field: K;
+    value: any;
+  } extends T
+    ? T
+    : never
+)
+  ? T["value"]
+  : never;
+
+const myFunc = <K extends UnionType["field"]>(
+  field: K,
+  value: InferValue<UnionType, K>
+): any => ({ // any
+  field,
+  value,
+});
+
+myFunc("one", "two") // OK
+myFunc("a", "a1") // OK
+myFunc("a", "b1") // OK
+myFunc("b", "a1") // OK
+```
+
+```js
 export type IMutations = {
     'setState': [ payload: { name: string; age: number} ],
     'nextTip': [ key: 'green' | 'red', val: number ]
