@@ -46,33 +46,46 @@ export type IActions = {
     'queryCardDetail': [payload: object],
     'queryBalanceSubscribeInfo': [payload: { cityCode: string }]
 }
-type NameOrId<T extends keyof U, U extends { [key: string]: any[] }> = U[T];
-type FO<T extends { [key: string]: any[] }> = {
-    [P in keyof T]: (key: P, ...payload: NameOrId<P, T>) => void
-}
-type FUnion = FO<IMutations>;
-type DUnion = FO<IActions>;
-type Visitor<T extends {[key: string]: any[]}> = {
+
+interface IDefine { [key: string]: any[] }
+
+type InferArgs<T extends IDefine, K extends keyof T> = T[K];
+
+type ICommit<IMS extends IDefine> = <K extends keyof IMutations>(
+    action: K,
+    ...value: InferArgs<IMS, K>
+  ) => any;
+
+type IDispatch<IAS extends IDefine> = <K extends keyof IActions>(
+    action: K,
+    ...value: InferArgs<IAS, K>
+  ) => any;
+
+type Visitor<T extends IDefine, M extends IDefine> = {
     [P in keyof T]: (
         builtin: {
-            commit: FUnion,
-            dispatch: DUnion
+            commit: ICommit<M>,
+            dispatch: IDispatch<T>
         }, 
         ...payload: T[P]
     ) => void
 }
 
-const actionns: Visitor<IActions> = {
+const actionns: Visitor<IActions, IMutations> = {
     async queryCardDetail({commit, dispatch}, payload) {
-        const nextTip =commit['nextTip'];
-        nextTip('nextTip', 'red', 20);
+        // const nextTip =commit['nextTip'];
+        // nextTip('nextTip', 'red', 20);
+        commit('nextTip', 'red', 20);
+        commit('setState', 'red', 20);
     },
     async queryBalanceSubscribeInfo({commit, dispatch}, { cityCode }) {
-        const queryCardDetail =dispatch['queryCardDetail'];
-        queryCardDetail('queryCardDetail', {});
+        // const queryCardDetail =dispatch['queryCardDetail'];
+        // queryCardDetail('queryCardDetail', {});
+        dispatch('queryCardDetail', {});
 
-        const queryBalanceSubscribeInfo =dispatch['queryBalanceSubscribeInfo'];
-        queryBalanceSubscribeInfo('queryBalanceSubscribeInfo', {});
+        // const queryBalanceSubscribeInfo =dispatch['queryBalanceSubscribeInfo'];
+        // queryBalanceSubscribeInfo('queryBalanceSubscribeInfo', {});
+        dispatch('queryBalanceSubscribeInfo');
     }
 }
 ```
